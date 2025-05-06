@@ -152,10 +152,10 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({ date }) => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <h3 className="font-medium text-family">3F - Family, Finances, Fitness</h3>
+              <h3 className="font-medium text-family">3F - Family, Friends, Faith</h3>
               <div className="h-2 bg-secondary rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-family to-fitness" 
+                  className="h-full bg-gradient-to-r from-family to-faith" 
                   style={{ width: `${getPercentage(ruleBreakdown["3F"])}%` }}
                 />
               </div>
@@ -163,10 +163,10 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({ date }) => {
             </div>
             
             <div className="space-y-2">
-              <h3 className="font-medium text-hobby">3H - Health, Hobby, Head</h3>
+              <h3 className="font-medium text-hobby">3H - Health, Hygiene, Hobby</h3>
               <div className="h-2 bg-secondary rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-health to-head" 
+                  className="h-full bg-gradient-to-r from-health to-hobby" 
                   style={{ width: `${getPercentage(ruleBreakdown["3H"])}%` }}
                 />
               </div>
@@ -174,10 +174,10 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({ date }) => {
             </div>
             
             <div className="space-y-2">
-              <h3 className="font-medium text-social">3S - Social, Sleep, Spirituality</h3>
+              <h3 className="font-medium text-social">3S - Soul, Service, Smile</h3>
               <div className="h-2 bg-secondary rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-social to-spirituality" 
+                  className="h-full bg-gradient-to-r from-soul to-smile" 
                   style={{ width: `${getPercentage(ruleBreakdown["3S"])}%` }}
                 />
               </div>

@@ -45,7 +45,7 @@ const Index = () => {
       <footer className="py-6 border-t">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
           <p>888 Rule: 8 hours work, 8 hours personal, 8 hours sleep</p>
-          <p className="mt-1">3F-3H-3S: Family, Finances, Fitness; Health, Hobby, Head; Social, Sleep, Spirituality</p>
+          <p className="mt-1">3F-3H-3S: Family, Friends, Faith; Health, Hygiene, Hobby; Soul, Service, Smile</p>
         </div>
       </footer>
     </div>

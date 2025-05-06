@@ -39,20 +39,20 @@ const defaultCategories: ActivityCategory[] = [
     description: "Time spent with family"
   },
   {
-    id: "finances",
-    name: "Finances",
+    id: "friends",
+    name: "Friends",
     color: "#6ECB63",
     group: "personal",
     rule: "3F",
-    description: "Managing finances and investments"
+    description: "Time with friends and social connections"
   },
   {
-    id: "fitness",
-    name: "Fitness",
+    id: "faith",
+    name: "Faith",
     color: "#FF5A5F",
     group: "personal",
     rule: "3F",
-    description: "Exercise and physical activities"
+    description: "Faith-based activities and beliefs"
   },
   {
     id: "health",
@@ -60,31 +60,31 @@ const defaultCategories: ActivityCategory[] = [
     color: "#5E60CE",
     group: "personal",
     rule: "3H",
-    description: "Health management and self-care"
+    description: "Physical health and fitness"
+  },
+  {
+    id: "hygiene",
+    name: "Hygiene",
+    color: "#9B5DE5",
+    group: "personal",
+    rule: "3H",
+    description: "Personal care and hygiene"
   },
   {
     id: "hobby",
     name: "Hobby",
-    color: "#9B5DE5",
+    color: "#00BBF9",
     group: "personal",
     rule: "3H",
     description: "Personal hobbies and interests"
   },
   {
-    id: "head",
-    name: "Head",
-    color: "#00BBF9",
-    group: "personal",
-    rule: "3H",
-    description: "Mental well-being and mindfulness"
-  },
-  {
-    id: "social",
-    name: "Social",
+    id: "soul",
+    name: "Soul",
     color: "#FFD166",
     group: "personal",
     rule: "3S",
-    description: "Social interactions and relationships"
+    description: "Personal fulfillment and spirituality"
   },
   {
     id: "sleep",
@@ -95,12 +95,20 @@ const defaultCategories: ActivityCategory[] = [
     description: "Sleep and rest"
   },
   {
-    id: "spirituality",
-    name: "Spirituality",
+    id: "service",
+    name: "Service",
     color: "#06D6A0",
     group: "personal",
     rule: "3S",
-    description: "Spiritual practices and reflection"
+    description: "Helping others and community service"
+  },
+  {
+    id: "smile",
+    name: "Smile",
+    color: "#06D6C2",
+    group: "personal",
+    rule: "3S",
+    description: "Activities that bring joy and happiness"
   }
 ];
 

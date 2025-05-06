@@ -32,8 +32,8 @@ export type TimeDistribution = {
 };
 
 export type RuleBreakdown = {
-  "3F": number; // Family, Finances, Fitness
-  "3H": number; // Health, Hobby, Head  
-  "3S": number; // Social, Sleep, Spirituality
+  "3F": number; // Family, Friends, Faith
+  "3H": number; // Health, Hygiene, Hobby  
+  "3S": number; // Soul, Service, Smile
   other: number;
 };
