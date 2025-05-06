@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { ActivityCategory, TimeEntry, DailySummary, TimeDistribution, RuleBreakdown } from '../types';
@@ -7,12 +6,9 @@ interface TimeStore {
   categories: ActivityCategory[];
   timeEntries: TimeEntry[];
   dailySummaries: DailySummary[];
-  activeEntry: TimeEntry | null;
   
   // Actions
   addCategory: (category: Omit<ActivityCategory, "id">) => void;
-  startActivity: (categoryId: string, description: string) => void;
-  stopActivity: () => void;
   addTimeEntry: (entry: Omit<TimeEntry, "id">) => void;
   deleteTimeEntry: (id: string) => void;
   getEntriesForDate: (date: Date) => TimeEntry[];
@@ -119,65 +115,17 @@ export const useTimeStore = create<TimeStore>()(
       categories: defaultCategories,
       timeEntries: [],
       dailySummaries: [],
-      activeEntry: null,
 
       addCategory: (category) => set((state) => ({
         categories: [...state.categories, { ...category, id: crypto.randomUUID() }]
       })),
-
-      startActivity: (categoryId, description) => {
-        const currentActiveEntry = get().activeEntry;
-        
-        // Stop current activity if there's one
-        if (currentActiveEntry) {
-          get().stopActivity();
-        }
-        
-        const newEntry: TimeEntry = {
-          id: crypto.randomUUID(),
-          categoryId,
-          startTime: new Date(),
-          endTime: null,
-          duration: null,
-          description
-        };
-        
-        set((state) => ({
-          activeEntry: newEntry,
-          timeEntries: [...state.timeEntries, newEntry]
-        }));
-      },
-
-      stopActivity: () => {
-        const currentActiveEntry = get().activeEntry;
-        
-        if (!currentActiveEntry) return;
-        
-        const endTime = new Date();
-        const durationMs = endTime.getTime() - currentActiveEntry.startTime.getTime();
-        const durationMinutes = Math.floor(durationMs / (1000 * 60));
-        
-        const updatedEntry = {
-          ...currentActiveEntry,
-          endTime,
-          duration: durationMinutes
-        };
-        
-        set((state) => ({
-          activeEntry: null,
-          timeEntries: state.timeEntries.map(entry => 
-            entry.id === currentActiveEntry.id ? updatedEntry : entry
-          )
-        }));
-      },
 
       addTimeEntry: (entry) => set((state) => ({
         timeEntries: [...state.timeEntries, { ...entry, id: crypto.randomUUID() }]
       })),
 
       deleteTimeEntry: (id) => set((state) => ({
-        timeEntries: state.timeEntries.filter(entry => entry.id !== id),
-        activeEntry: state.activeEntry?.id === id ? null : state.activeEntry
+        timeEntries: state.timeEntries.filter(entry => entry.id !== id)
       })),
 
       getEntriesForDate: (date) => {
