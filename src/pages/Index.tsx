@@ -7,10 +7,12 @@ import ActivityLog from '@/components/ActivityLog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTimeStore } from '@/data/store';
 import { Toaster } from "@/components/ui/sonner";
+import { useAuth } from '@/context/AuthContext';
 
 const Index = () => {
   const [currentDate] = useState(new Date());
   const { activeEntry } = useTimeStore();
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -18,6 +20,13 @@ const Index = () => {
       <Navigation />
       
       <main className="flex-1 container mx-auto px-4 py-6">
+        {user && (
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold">Welcome, {user.email}</h2>
+            <p className="text-muted-foreground">Track your time and maintain your work-life balance</p>
+          </div>
+        )}
+        
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1">
             <TimeTracker />

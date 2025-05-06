@@ -2,11 +2,17 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useTimeStore } from '../data/store';
-import { Timer, Calendar } from 'lucide-react';
+import { Timer, Calendar, LogOut } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
+import { useAuth } from '@/context/AuthContext';
 
 const Navigation: React.FC = () => {
   const { activeEntry } = useTimeStore();
+  const { user, signOut } = useAuth();
+  
+  const handleSignOut = async () => {
+    await signOut();
+  };
   
   return (
     <header className="bg-white shadow-sm py-4 sticky top-0 z-10">
@@ -17,17 +23,30 @@ const Navigation: React.FC = () => {
             <h1 className="font-bold text-xl">888 Time Tracker</h1>
           </div>
           
-          {activeEntry && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="bg-accent/10 text-accent hover:bg-accent/20 hover:text-accent"
-              onClick={() => toast.info('Currently tracking time. Stop your current activity to view detailed insights.')}
-            >
-              <Calendar className="h-4 w-4 mr-1" />
-              Tracking...
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {activeEntry && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="bg-accent/10 text-accent hover:bg-accent/20 hover:text-accent"
+                onClick={() => toast.info('Currently tracking time. Stop your current activity to view detailed insights.')}
+              >
+                <Calendar className="h-4 w-4 mr-1" />
+                Tracking...
+              </Button>
+            )}
+            
+            {user && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleSignOut}
+              >
+                <LogOut className="h-4 w-4 mr-1" />
+                Sign Out
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </header>
