@@ -19,9 +19,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/AuthContext';
 
 const TimeTracker: React.FC = () => {
-  const { categories, addTimeEntry } = useTimeStore();
+  const { categories } = useTimeStore();
+  const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [duration, setDuration] = useState<string>('30');
@@ -29,9 +32,15 @@ const TimeTracker: React.FC = () => {
   const [selectedTime, setSelectedTime] = useState<string>(
     format(new Date(), 'HH:mm')
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Function to add an activity log entry
-  const handleAddActivity = () => {
+  const handleAddActivity = async () => {
+    if (!user) {
+      toast.error('You must be logged in to add activities');
+      return;
+    }
+    
     if (!selectedCategory) {
       toast.error('Please select a category');
       return;
@@ -55,22 +64,36 @@ const TimeTracker: React.FC = () => {
     // Calculate start time by subtracting duration
     const startTime = new Date(endTime.getTime() - durationMinutes * 60000);
 
-    // Add the entry
-    addTimeEntry({
-      categoryId: selectedCategory,
-      startTime,
-      endTime,
-      duration: durationMinutes,
-      description
-    });
+    try {
+      setIsSubmitting(true);
+      
+      // Insert data into Supabase
+      const { error } = await supabase
+        .from('time_entries')
+        .insert({
+          user_id: user.id,
+          category_id: selectedCategory,
+          start_time: startTime.toISOString(),
+          end_time: endTime.toISOString(),
+          duration: durationMinutes,
+          description: description || null
+        });
 
-    // Success notification
-    toast.success(`Added ${categories.find(c => c.id === selectedCategory)?.name} activity`);
-    
-    // Reset form
-    setSelectedCategory('');
-    setDescription('');
-    setDuration('30');
+      if (error) throw error;
+
+      // Success notification
+      toast.success(`Added ${categories.find(c => c.id === selectedCategory)?.name} activity`);
+      
+      // Reset form
+      setSelectedCategory('');
+      setDescription('');
+      setDuration('30');
+    } catch (error: any) {
+      toast.error(`Error adding activity: ${error.message}`);
+      console.error('Error adding time entry:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -173,8 +196,12 @@ const TimeTracker: React.FC = () => {
           }
         </div>
         
-        <Button onClick={handleAddActivity} className="w-full">
-          Add Activity
+        <Button 
+          onClick={handleAddActivity} 
+          className="w-full"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Adding...' : 'Add Activity'}
         </Button>
       </div>
     </div>

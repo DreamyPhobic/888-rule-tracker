@@ -1,13 +1,11 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { useTimeStore } from '../data/store';
-import { Timer, Calendar, LogOut } from 'lucide-react';
+import { Timer, LogOut } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/context/AuthContext';
 
 const Navigation: React.FC = () => {
-  const { activeEntry } = useTimeStore();
   const { user, signOut } = useAuth();
   
   const handleSignOut = async () => {
@@ -24,18 +22,6 @@ const Navigation: React.FC = () => {
           </div>
           
           <div className="flex items-center gap-2">
-            {activeEntry && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="bg-accent/10 text-accent hover:bg-accent/20 hover:text-accent"
-                onClick={() => toast.info('Currently tracking time. Stop your current activity to view detailed insights.')}
-              >
-                <Calendar className="h-4 w-4 mr-1" />
-                Tracking...
-              </Button>
-            )}
-            
             {user && (
               <Button 
                 variant="outline" 
