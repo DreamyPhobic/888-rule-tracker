@@ -11,7 +11,6 @@ import { useAuth } from '@/context/AuthContext';
 
 const Index = () => {
   const [currentDate] = useState(new Date());
-  const { activeEntry } = useTimeStore();
   const { user } = useAuth();
 
   return (

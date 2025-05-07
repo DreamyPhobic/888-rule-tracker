@@ -10,15 +10,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Clock, Calendar, Plus } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { format } from 'date-fns';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 const TimeTracker: React.FC = () => {
   const { categories, addTimeEntry } = useTimeStore();
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [duration, setDuration] = useState<string>('30');
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedTime, setSelectedTime] = useState<string>(
+    format(new Date(), 'HH:mm')
+  );
   
   // Function to add an activity log entry
   const handleAddActivity = () => {
@@ -35,11 +45,17 @@ const TimeTracker: React.FC = () => {
       return;
     }
 
-    // Calculate start and end time
-    const endTime = new Date();
+    // Parse selected time
+    const [hours, minutes] = selectedTime.split(':').map(Number);
+    
+    // Create end time based on selected date and time
+    const endTime = new Date(selectedDate);
+    endTime.setHours(hours, minutes, 0, 0);
+    
+    // Calculate start time by subtracting duration
     const startTime = new Date(endTime.getTime() - durationMinutes * 60000);
 
-    // Add the entry directly
+    // Add the entry
     addTimeEntry({
       categoryId: selectedCategory,
       startTime,
@@ -94,20 +110,67 @@ const TimeTracker: React.FC = () => {
           onChange={e => setDescription(e.target.value)}
         />
         
-        <div className="flex items-center gap-2">
-          <Input
-            type="number"
-            min="1"
-            placeholder="Duration in minutes"
-            value={duration}
-            onChange={e => setDuration(e.target.value)}
-            className="flex-1"
-          />
-          <span className="text-sm text-muted-foreground">minutes</span>
+        <div className="flex flex-col space-y-3">
+          {/* Date picker */}
+          <div>
+            <label className="text-sm text-muted-foreground mb-1 block">Date</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal"
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {format(selectedDate, 'PPP')}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={(date) => date && setSelectedDate(date)}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          
+          {/* Time picker */}
+          <div>
+            <label className="text-sm text-muted-foreground mb-1 block">End Time</label>
+            <Input
+              type="time"
+              value={selectedTime}
+              onChange={(e) => setSelectedTime(e.target.value)}
+              className="w-full"
+            />
+          </div>
+          
+          {/* Duration input */}
+          <div>
+            <label className="text-sm text-muted-foreground mb-1 block">Duration</label>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                min="1"
+                placeholder="Duration in minutes"
+                value={duration}
+                onChange={e => setDuration(e.target.value)}
+                className="flex-1"
+              />
+              <span className="text-sm text-muted-foreground">minutes</span>
+            </div>
+          </div>
         </div>
         
         <div className="text-xs text-muted-foreground mt-1">
-          {format(new Date(new Date().getTime() - parseInt(duration || '0', 10) * 60000), 'h:mm a')} - {format(new Date(), 'h:mm a')}
+          {format(new Date(new Date(selectedDate).setHours(
+            ...selectedTime.split(':').map(Number) as [number, number]
+          )).getTime() - parseInt(duration || '0', 10) * 60000, 'h:mm a')} - {
+            format(new Date(selectedDate).setHours(
+              ...selectedTime.split(':').map(Number) as [number, number]
+            ), 'h:mm a')
+          }
         </div>
         
         <Button onClick={handleAddActivity} className="w-full">
