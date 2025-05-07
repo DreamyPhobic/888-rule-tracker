@@ -1,18 +1,111 @@
 
-import React from 'react';
-import { useTimeStore } from '../data/store';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import ProgressRing from './ProgressRing';
-import { Calendar } from 'lucide-react';
+import { Calendar, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/context/AuthContext';
+import { useTimeStore } from '@/data/store';
 
 interface DashboardSummaryProps {
   date: Date;
 }
 
+interface TimeEntryFromSupabase {
+  id: string;
+  category_id: string;
+  start_time: string;
+  end_time: string;
+  duration: number;
+  description: string | null;
+}
+
 const DashboardSummary: React.FC<DashboardSummaryProps> = ({ date }) => {
-  const { getTimeDistribution, getRuleBreakdown } = useTimeStore();
-  const timeDistribution = getTimeDistribution(date);
-  const ruleBreakdown = getRuleBreakdown(date);
+  const { categories } = useTimeStore();
+  const { user } = useAuth();
+  const [timeEntries, setTimeEntries] = useState<TimeEntryFromSupabase[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const fetchEntries = async () => {
+      if (!user) return;
+      
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Get the start and end of the day for the selected date
+        const startDate = new Date(date);
+        startDate.setHours(0, 0, 0, 0);
+        
+        const endDate = new Date(date);
+        endDate.setHours(23, 59, 59, 999);
+        
+        const { data, error } = await supabase
+          .from('time_entries')
+          .select('*')
+          .eq('user_id', user.id)
+          .gte('start_time', startDate.toISOString())
+          .lte('start_time', endDate.toISOString());
+        
+        if (error) throw error;
+        
+        setTimeEntries(data || []);
+      } catch (error: any) {
+        console.error('Error fetching time entries:', error);
+        setError('Failed to load activities');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchEntries();
+  }, [user, date]);
+  
+  // Calculate time distribution from Supabase entries
+  const calculateTimeDistribution = () => {
+    const distribution = {
+      work: 0,
+      personal: 0,
+      sleep: 0,
+    };
+    
+    timeEntries.forEach(entry => {
+      const category = categories.find(c => c.id === entry.category_id);
+      if (category) {
+        distribution[category.group] += entry.duration;
+      }
+    });
+    
+    return distribution;
+  };
+  
+  // Calculate 3F-3H-3S breakdown from Supabase entries
+  const calculateRuleBreakdown = () => {
+    const breakdown = {
+      "3F": 0,
+      "3H": 0,
+      "3S": 0,
+      "other": 0,
+    };
+    
+    timeEntries.forEach(entry => {
+      const category = categories.find(c => c.id === entry.category_id);
+      if (category) {
+        if (category.rule === "3F" || category.rule === "3H" || category.rule === "3S") {
+          breakdown[category.rule] += entry.duration;
+        } else {
+          breakdown.other += entry.duration;
+        }
+      }
+    });
+    
+    return breakdown;
+  };
+  
+  const timeDistribution = calculateTimeDistribution();
+  const ruleBreakdown = calculateRuleBreakdown();
   
   const totalMinutes = Object.values(timeDistribution).reduce((acc, val) => acc + val, 0);
   const idealMinutesPerDay = 24 * 60; // 24 hours in minutes
@@ -35,6 +128,22 @@ const DashboardSummary: React.FC<DashboardSummaryProps> = ({ date }) => {
     const mins = minutes % 60;
     return `${hours}h ${mins}m`;
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-destructive py-6">
+        {error}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
