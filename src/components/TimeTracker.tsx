@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useTimeStore } from '../data/store';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Calendar as CalendarIcon, Plus } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, Clock } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
@@ -36,6 +37,11 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({ onActivityAdded }) => {
     format(new Date(), 'HH:mm')
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Function to handle quick duration selection
+  const handleQuickDuration = (minutes: number) => {
+    setDuration(minutes.toString());
+  };
   
   // Function to add an activity log entry
   const handleAddActivity = async () => {
@@ -178,7 +184,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({ onActivityAdded }) => {
             />
           </div>
           
-          {/* Duration input */}
+          {/* Duration input with quick selection buttons */}
           <div>
             <label className="text-sm text-muted-foreground mb-1 block">Duration</label>
             <div className="flex items-center gap-2">
@@ -191,6 +197,40 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({ onActivityAdded }) => {
                 className="flex-1"
               />
               <span className="text-sm text-muted-foreground">minutes</span>
+            </div>
+            
+            {/* Quick duration selection buttons */}
+            <div className="flex gap-2 mt-2">
+              <Button 
+                type="button" 
+                size="sm" 
+                variant="outline"
+                onClick={() => handleQuickDuration(30)}
+                className="flex-1"
+              >
+                <Clock className="mr-1 h-3 w-3" />
+                +30m
+              </Button>
+              <Button 
+                type="button" 
+                size="sm" 
+                variant="outline"
+                onClick={() => handleQuickDuration(60)}
+                className="flex-1"
+              >
+                <Clock className="mr-1 h-3 w-3" />
+                +1h
+              </Button>
+              <Button 
+                type="button" 
+                size="sm" 
+                variant="outline"
+                onClick={() => handleQuickDuration(180)}
+                className="flex-1"
+              >
+                <Clock className="mr-1 h-3 w-3" />
+                +3h
+              </Button>
             </div>
           </div>
         </div>
