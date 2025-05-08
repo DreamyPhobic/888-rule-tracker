@@ -40,7 +40,12 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({ onActivityAdded }) => {
   
   // Function to handle quick duration selection
   const handleQuickDuration = (minutes: number) => {
-    setDuration(minutes.toString());
+    // Parse the current duration, or default to 0 if it's not a valid number
+    const currentDuration = parseInt(duration, 10) || 0;
+    // Add the specified minutes to the current duration
+    const newDuration = currentDuration + minutes;
+    // Update the duration state with the new value
+    setDuration(newDuration.toString());
   };
   
   // Function to add an activity log entry
@@ -258,3 +263,4 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({ onActivityAdded }) => {
 };
 
 export default TimeTracker;
+
