@@ -31,7 +31,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({ onActivityAdded }) => {
   const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [description, setDescription] = useState<string>('');
-  const [duration, setDuration] = useState<string>('30');
+  const [duration, setDuration] = useState<string>('0.5'); // Default to 0.5 hours (30 minutes)
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<string>(
     format(new Date(), 'HH:mm')
@@ -39,13 +39,13 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({ onActivityAdded }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Function to handle quick duration selection
-  const handleQuickDuration = (minutes: number) => {
+  const handleQuickDuration = (hours: number) => {
     // Parse the current duration, or default to 0 if it's not a valid number
-    const currentDuration = parseInt(duration, 10) || 0;
-    // Add the specified minutes to the current duration
-    const newDuration = currentDuration + minutes;
-    // Update the duration state with the new value
-    setDuration(newDuration.toString());
+    const currentDuration = parseFloat(duration) || 0;
+    // Add the specified hours to the current duration
+    const newDuration = currentDuration + hours;
+    // Update the duration state with the new value (with up to 2 decimal places)
+    setDuration(newDuration.toFixed(2));
   };
   
   // Function to add an activity log entry
@@ -60,13 +60,16 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({ onActivityAdded }) => {
       return;
     }
 
-    // Convert duration from string to number
-    const durationMinutes = parseInt(duration, 10);
+    // Convert duration from hours to minutes for database storage
+    const durationHours = parseFloat(duration);
     
-    if (isNaN(durationMinutes) || durationMinutes <= 0) {
+    if (isNaN(durationHours) || durationHours <= 0) {
       toast.error('Please enter a valid duration');
       return;
     }
+    
+    // Convert hours to minutes for storage
+    const durationMinutes = Math.round(durationHours * 60);
 
     // Parse selected time
     const [hours, minutes] = selectedTime.split(':').map(Number);
@@ -89,7 +92,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({ onActivityAdded }) => {
           category_id: selectedCategory,
           start_time: startTime.toISOString(),
           end_time: endTime.toISOString(),
-          duration: durationMinutes,
+          duration: durationMinutes, // Store as minutes in database
           description: description || null
         });
 
@@ -101,7 +104,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({ onActivityAdded }) => {
       // Reset form
       setSelectedCategory('');
       setDescription('');
-      setDuration('30');
+      setDuration('0.5'); // Reset to default 0.5 hours
       
       // Call the onActivityAdded callback to refresh the summary
       if (onActivityAdded) {
@@ -195,13 +198,14 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({ onActivityAdded }) => {
             <div className="flex items-center gap-2">
               <Input
                 type="number"
-                min="1"
-                placeholder="Duration in minutes"
+                step="0.01"
+                min="0.01"
+                placeholder="Duration in hours"
                 value={duration}
                 onChange={e => setDuration(e.target.value)}
                 className="flex-1"
               />
-              <span className="text-sm text-muted-foreground">minutes</span>
+              <span className="text-sm text-muted-foreground">hours</span>
             </div>
             
             {/* Quick duration selection buttons */}
@@ -210,17 +214,17 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({ onActivityAdded }) => {
                 type="button" 
                 size="sm" 
                 variant="outline"
-                onClick={() => handleQuickDuration(30)}
+                onClick={() => handleQuickDuration(0.5)}
                 className="flex-1"
               >
                 <Clock className="mr-1 h-3 w-3" />
-                +30m
+                +0.5h
               </Button>
               <Button 
                 type="button" 
                 size="sm" 
                 variant="outline"
-                onClick={() => handleQuickDuration(60)}
+                onClick={() => handleQuickDuration(1)}
                 className="flex-1"
               >
                 <Clock className="mr-1 h-3 w-3" />
@@ -230,7 +234,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({ onActivityAdded }) => {
                 type="button" 
                 size="sm" 
                 variant="outline"
-                onClick={() => handleQuickDuration(180)}
+                onClick={() => handleQuickDuration(3)}
                 className="flex-1"
               >
                 <Clock className="mr-1 h-3 w-3" />
@@ -243,7 +247,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({ onActivityAdded }) => {
         <div className="text-xs text-muted-foreground mt-1">
           {format(new Date(new Date(selectedDate).setHours(
             ...selectedTime.split(':').map(Number) as [number, number]
-          )).getTime() - parseInt(duration || '0', 10) * 60000, 'h:mm a')} - {
+          )).getTime() - Math.round(parseFloat(duration || '0') * 60) * 60000, 'h:mm a')} - {
             format(new Date(selectedDate).setHours(
               ...selectedTime.split(':').map(Number) as [number, number]
             ), 'h:mm a')
@@ -263,4 +267,3 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({ onActivityAdded }) => {
 };
 
 export default TimeTracker;
-
