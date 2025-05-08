@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import Navigation from '@/components/Navigation';
 import TimeTracker from '@/components/TimeTracker';
 import DashboardSummary from '@/components/DashboardSummary';
@@ -12,6 +12,13 @@ import { useAuth } from '@/context/AuthContext';
 const Index = () => {
   const [currentDate] = useState(new Date());
   const { user } = useAuth();
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Function to handle refresh after new activity is added
+  const handleActivityAdded = useCallback(() => {
+    // Increment the refresh key to force components to re-render
+    setRefreshKey(prev => prev + 1);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -28,7 +35,7 @@ const Index = () => {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1">
-            <TimeTracker />
+            <TimeTracker onActivityAdded={handleActivityAdded} />
           </div>
           
           <div className="lg:col-span-2 space-y-6">
@@ -39,11 +46,11 @@ const Index = () => {
               </TabsList>
               
               <TabsContent value="summary">
-                <DashboardSummary date={currentDate} />
+                <DashboardSummary date={currentDate} key={`summary-${refreshKey}`} />
               </TabsContent>
               
               <TabsContent value="log">
-                <ActivityLog date={currentDate} />
+                <ActivityLog date={currentDate} key={`log-${refreshKey}`} />
               </TabsContent>
             </Tabs>
           </div>

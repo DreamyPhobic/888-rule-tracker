@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useTimeStore } from '../data/store';
 import { Button } from '@/components/ui/button';
@@ -22,7 +21,11 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 
-const TimeTracker: React.FC = () => {
+interface TimeTrackerProps {
+  onActivityAdded?: () => void;
+}
+
+const TimeTracker: React.FC<TimeTrackerProps> = ({ onActivityAdded }) => {
   const { categories } = useTimeStore();
   const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -88,6 +91,12 @@ const TimeTracker: React.FC = () => {
       setSelectedCategory('');
       setDescription('');
       setDuration('30');
+      
+      // Call the onActivityAdded callback to refresh the summary
+      if (onActivityAdded) {
+        onActivityAdded();
+      }
+      
     } catch (error: any) {
       toast.error(`Error adding activity: ${error.message}`);
       console.error('Error adding time entry:', error);
